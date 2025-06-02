@@ -2,7 +2,7 @@
 using Godot;
 using System;
 
-public partial class StartGameBtn : TextureButton
+public partial class StartGameBtn : TextureButton,IStartGame
 {
     [Export] private OptionButton offerOption;
     public override void _Ready()
@@ -19,7 +19,7 @@ public partial class StartGameBtn : TextureButton
             GD.Print("未选定");
             return;
         }
-        ServeEventCenter.RegisterOneTimeEvent(StringResource.StartGame,StartGame);
+        SignalEventCenter.Instance.RegisterEvent(this, StringResource.StartGame,(uint)ConnectFlags.OneShot);
         NetManager.Instance.StartGameLocal(GameManager.Instance.roomId, offerOption.Selected);
         
     }
@@ -30,7 +30,7 @@ public partial class StartGameBtn : TextureButton
             offerOption.AddItem(i.Name);
         }
     }
-    private void StartGame(int offer)
+    public void StartGame()
     {
         this.Hide();
     }

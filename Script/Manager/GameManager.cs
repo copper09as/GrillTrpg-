@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class GameManager : Node
+public partial class GameManager : Node,IStartGame
 {
     public static GameManager Instance { get; private set; }
     public int roomId;
@@ -15,7 +15,7 @@ public partial class GameManager : Node
         if (Instance == null && !Multiplayer.IsServer())
         {
             Instance = this;
-            ServeEventCenter.RegisterEvent(StringResource.StartGame, StartGame);
+            SignalEventCenter.Instance.RegisterEvent(this, StringResource.StartGame);
         }
 
     }
@@ -25,9 +25,7 @@ public partial class GameManager : Node
         if (Instance == this)
         {
             Instance = null;
-            ServeEventCenter.UnregisterEvent(StringResource.StartGame, StartGame);
         }
-        
     }
 
     public override void _Process(double delta)
@@ -39,7 +37,6 @@ public partial class GameManager : Node
         if (int.Parse(Name) != Multiplayer.GetUniqueId())
             return;
         base._Process(delta);
-        //if (IsHost) GD.Print("我是房主");
         var pos = player.MoveInput();
     }
 
@@ -82,9 +79,9 @@ public partial class GameManager : Node
         else
             ResManager.Instance.CreateInstance<StartGameBtn>(StringResource.StartGameBtnTscn, GetNode("/root/MainGame2"), "Start");
     }
-    public void StartGame(int offer)
+    public void StartGame()
     {
-        GameDataCenter.Instance.currentOfferData = GameDataCenter.Instance.gameOfferData[offer];
+        
         if (IsHost)
             ResManager.Instance.CreateInstance<Control>(StringResource.HostGameTscn, GetNode("/root/MainGame2"), "HostGame");
         else

@@ -21,6 +21,7 @@ NetManager="*res://Tscn/NetManager.tscn"
 SceneManager="*res://Tscn/Instance/SceneManager.tscn"
 ResManager="*res://Tscn/Instance/ResManager.tscn"
 GameDataCenter="*res://Tscn/Instance/GameDataCenter.tscn"
+SignalEventCenter="*res://Tscn/Instance/SignalEventCenter.tscn"
 
 [display]
 

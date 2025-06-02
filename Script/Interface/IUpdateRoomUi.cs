@@ -1,0 +1,4 @@
+interface IUpdateRoomUi
+{
+    void UpdateRoomUi();
+}

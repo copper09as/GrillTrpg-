@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class RoomManager : Node
+public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
 {
     public static RoomManager Instance { get; private set; }
     public Dictionary<int, Room> rooms;//服务端使用
@@ -25,20 +25,10 @@ public partial class RoomManager : Node
         }
         if (!Multiplayer.IsServer())
         {
-            ServeEventCenter.RegisterEvent(StringResource.StartGame, StartGame);
+            SignalEventCenter.Instance.RegisterEvent(this, StringResource.StartGame);
             ExitRoomBtn.Pressed += ExitRoomPress;
         }
-        ServeEventCenter.RegisterEvent(StringResource.UpdateUi, UpdatePlayerList);
-    }
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        ServeEventCenter.UnregisterEvent(StringResource.UpdateUi, UpdatePlayerList);
-        if (!Multiplayer.IsServer())
-        {
-            ServeEventCenter.UnregisterEvent(StringResource.UpdateUi, StartGame);
-        }
-
+        SignalEventCenter.Instance.RegisterEvent(this, StringResource.UpdateRoomUi);
     }
     private void ExitRoomPress()
     {
@@ -63,14 +53,15 @@ public partial class RoomManager : Node
         EnterRoomBtn.Hide();
         roomId.Hide();
     }
-    private void StartGame()
+    public void StartGame()
     {
-        if (IsInstanceValid( playerList))
+        
+        if (IsInstanceValid(playerList))
             playerList.Hide();
         if (IsInstanceValid( ExitRoomBtn))
             ExitRoomBtn.Hide();
     }
-    private void UpdatePlayerList()
+    public void UpdateRoomUi()
     {
         var onlinePlayers = Multiplayer.IsServer() ? servePlayers : players;
         playerList.Clear();

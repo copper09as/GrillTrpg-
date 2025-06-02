@@ -20,7 +20,7 @@ public class ServeNetServe : NetServe
                 SceneChangeManager.Instance.ChangeScene(StringResource.ServeMainGame);
                 GD.Print("服务器已成功创建并运行。");
             }
-            ServeEventCenter.TriggerEvent(StringResource.UpdateUi);
+            SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
         }
         return instance;
     }
@@ -46,7 +46,7 @@ public class ServeNetServe : NetServe
         {
             RoomManager.Instance.servePlayers.Remove((int)id);
             LeaveRoom(id);
-            ServeEventCenter.TriggerEvent(StringResource.UpdateUi);
+            SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
         }
     }
     public void LeaveRoom(long id,bool isQueue = true)

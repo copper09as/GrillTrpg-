@@ -1,0 +1,4 @@
+interface IStartGame
+{
+    void StartGame();
+}

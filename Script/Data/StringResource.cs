@@ -23,6 +23,7 @@ public static class StringResource
     public const string StartTscn = "res://Tscn/StartPanel.tscn";
     public const string ChoseCharacterTsce = "res://Tscn/GameScene/ChoseCharacter.tscn";
     public const string StartGameBtnTscn = "res://Tscn/GameScene/StartGameBtn.tscn";
+    public const string ConnectTscn = "res://Tscn/StartPanel.tscn";
     public static string GetPlayerSavePath(int index)
     {
 

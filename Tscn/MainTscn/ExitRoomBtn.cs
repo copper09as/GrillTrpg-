@@ -10,7 +10,7 @@ public partial class ExitRoomBtn : Button
     }
     public void ExitRoom()
     {
-        NetManager.Instance.RpcId(1, "ExitRoom", GameManager.Instance.roomId, Multiplayer.GetUniqueId());
+        NetManager.Instance.RpcId(1, "ExitRoom", Multiplayer.GetUniqueId());
         SceneChangeManager.Instance.ChangeScene(StringResource.MainGame);
     }
 

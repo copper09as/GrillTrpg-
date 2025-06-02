@@ -16,11 +16,11 @@ public partial class StartUi : Control
     }
     public void OnServeBtn()
     {
-        NetManager.Instance.netServe = ServeNetServe.GetInstance(NetManager.Instance.Multiplayer, int.Parse(PortTxt.Text), 10);
+        NetManager.Instance.netServe = new ServeNetServe(NetManager.Instance.Multiplayer, int.Parse(PortTxt.Text), 10);
     }
     public void OnClientBtn()
     {
-        NetManager.Instance.netServe = ClientNetServe.GetInstance(NetManager.Instance.Multiplayer, Iptxt.Text, int.Parse(PortTxt.Text));
+        NetManager.Instance.netServe = new ClientNetServe(NetManager.Instance.Multiplayer, Iptxt.Text, int.Parse(PortTxt.Text));
     }
     public void OnCreateBtn()
     {

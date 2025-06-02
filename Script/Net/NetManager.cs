@@ -8,9 +8,9 @@ public partial class NetManager : Node
 {
     public static NetManager Instance { get; private set; }
     [Export] public LineEdit roomId;
+    //public List<int> servePlayers = new List<int>();//服务端使用，在线的所有玩家
     public NetServe netServe;
     //public Dictionary<int, List<int>> roomDic = new Dictionary<int, List<int>>();
-
     private NetManager() { }
     public override void _Ready()
     {
@@ -75,7 +75,7 @@ public partial class NetManager : Node
             GameManager.Instance.roomId = roomId;
             RoomManager.Instance.PlayerEnterRoom();
         }
-        RoomManager.Instance.players.Add(peerId);
+        netServe.players.Add(peerId);
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
     }
 
@@ -91,10 +91,9 @@ public partial class NetManager : Node
 
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
-    private void ExitRoom(int id, int peerId)
+    private void ExitRoom(int peerId)
     {
-        RoomManager.Instance.servePlayers.Remove((int)id);
-        ServeNetServe.GetInstance().LeaveRoom(peerId, false);
+        RoomManager.Instance.LeaveRoom(peerId, false);
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
     }
 
@@ -103,22 +102,37 @@ public partial class NetManager : Node
     /// </summary>
     /// <param name="peerId"></param>
     [Rpc(MultiplayerApi.RpcMode.Authority)]
-    private void SyncLeaveRoom(int peerId)
+    private void SyncLeaveRoom(int peerId)//本地没有调用成功.现在可以调用成功
     {
-        RoomManager.Instance.players.Remove(peerId);
-        var node = this.GetNodeOrNull(peerId.ToString());
-        SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
-        if (node != null)
-            node.QueueFree();
+        try
+        {
+            netServe.players.Remove(peerId);//本地移除自己
+            //GD.Print(netServe.players[1]);
+        }
+        catch (Exception e)
+        {
+            GD.Print(e.ToString());
+        }
+        
+        if (peerId == Multiplayer.GetUniqueId())
+        {
+            SceneChangeManager.Instance.ChangeScene(StringResource.MainGame);
+            GD.Print("不删除自己，然后重置房间场景");
+        }
         else
+        {
+            var node = this.GetNodeOrNull(peerId.ToString());
+            if(node != null)
+            node.QueueFree();
             GD.Print("转接器已删除");
+        }
+        SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
         GD.Print($"玩家 {peerId} 已从房间 {GameManager.Instance.roomId} 退出");
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
     public void LoadGameManager(int id)
     {
         ResManager.Instance.CreateInstance<GameManager>(StringResource.GameManagerPath, NetManager.Instance, id.ToString());
-        RoomManager.Instance.servePlayers.Add(id);
         RpcId(id, MethodName.SyncGameManager, id);
         GD.Print("转接器已生成");
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
@@ -130,22 +144,12 @@ public partial class NetManager : Node
         ResManager.Instance.CreateInstance<GameManager>(StringResource.GameManagerPath, this, id.ToString());
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
     }
-    /*
-    public void SetPlayer(int id, bool isHost)
-    {
-        RpcId(id, MethodName.BecomeHost, id, isHost);
-    }*/
     [Rpc(MultiplayerApi.RpcMode.Authority)]
     public void SetPlayer(int id, bool isHost)
     {
         GameManager.Instance.IsHost = isHost;
         GameManager.Instance.EnterRoom();
     }
-    /*[Rpc(MultiplayerApi.RpcMode.Authority)]
-    public void RoomFill()
-    {
-        GameManager.Instance.RoomFill();
-    }*/
     public void StartGameLocal(int roomId, int offer)
     {
         Instance.RpcId(1, MethodName.StartGame, GameManager.Instance.roomId, offer);
@@ -171,7 +175,7 @@ public partial class NetManager : Node
         GameDataCenter.Instance.currentOfferData = GameDataCenter.Instance.gameOfferData[offer];
         SignalEventCenter.Instance.TriggerEvent(StringResource.StartGame);
     }
-    
+
 
 
 }

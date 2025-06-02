@@ -33,6 +33,7 @@ public partial class WriteWord : Control
                 GrillGameManager.Instance.SelectWrite(this);
             }
         }
+       
         // 处理鼠标事件（桌面端）
         else if (@event is InputEventMouseButton mouseEvent)
         {

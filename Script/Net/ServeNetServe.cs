@@ -2,14 +2,13 @@ using Godot;
 
 public class ServeNetServe : NetServe
 {
-    private static ServeNetServe instance;
-    public static ServeNetServe GetInstance(MultiplayerApi Multiplayer, int port, int max)
+    private static int connectTimes = 0;
+    public ServeNetServe(MultiplayerApi Multiplayer, int port, int max) : base(Multiplayer)
     {
-        if (instance == null)
+        if (connectTimes == 0)
         {
-            instance = new ServeNetServe(NetManager.Instance.Multiplayer, port, max);
-            Multiplayer.PeerConnected += instance.OnPlayerConnected;
-            Multiplayer.PeerDisconnected += instance.OnPlayerDisconnected;
+            Multiplayer.PeerConnected += OnPlayerConnected;
+            Multiplayer.PeerDisconnected += OnPlayerDisconnected;
         }
         var peer = new ENetMultiplayerPeer();
         if (peer.CreateServer(port, max) == Error.Ok)
@@ -22,21 +21,14 @@ public class ServeNetServe : NetServe
             }
             SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
         }
-        return instance;
+        connectTimes += 1;
     }
-    public static ServeNetServe GetInstance()
-    {
-        return instance;
-    }
-    private ServeNetServe(MultiplayerApi Multiplayer, int port, int max) : base(Multiplayer) { }
-    public override void EnterRoom()
-    {
-        throw new System.NotImplementedException();
-    }
+
     private void OnPlayerConnected(long id)
     {
         if (Multiplayer.IsServer())
         {
+            NetManager.Instance.netServe.players.Add((int)id);
             GD.Print(id);
         }
     }
@@ -44,23 +36,9 @@ public class ServeNetServe : NetServe
     {
         if (Multiplayer.IsServer())
         {
-            RoomManager.Instance.servePlayers.Remove((int)id);
-            LeaveRoom(id);
+            NetManager.Instance.netServe.players.Remove((int)id);
+            RoomManager.Instance.LeaveRoom((int)id);
             SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
         }
-    }
-    public void LeaveRoom(long id,bool isQueue = true)
-    {
-        int roomId = RoomManager.Instance.LeaveRoom((int)id);
-        if (RoomManager.Instance.rooms.ContainsKey(roomId))//如果服务端房间存在
-        {
-            foreach (var existingId in RoomManager.Instance.rooms[roomId].players)
-            {
-                NetManager.Instance.RpcId(existingId, "SyncLeaveRoom", id);
-            }
-        }
-        var node = NetManager.Instance.GetNodeOrNull(id.ToString());
-        if(isQueue)
-            node.QueueFree();
     }
 }

@@ -3,17 +3,15 @@ using Godot;
 
 public class ClientNetServe : NetServe
 {
+    private static int connctTimes = 0;
 
-    private static ClientNetServe instance;
-    private ClientNetServe(MultiplayerApi Multiplayer) : base(Multiplayer) { }
-    public static ClientNetServe GetInstance(MultiplayerApi Multiplayer, string ip, int port)
+    public ClientNetServe(MultiplayerApi Multiplayer, string ip, int port) : base(Multiplayer)
     {
-        if (ClientNetServe.instance == null)
+        if (connctTimes == 0)
         {
-            instance = new ClientNetServe(NetManager.Instance.Multiplayer);
-            Multiplayer.ConnectedToServer += instance.OnConnectedToServer;
-            Multiplayer.ConnectionFailed += instance.OnConnectionFailed;
-            Multiplayer.ServerDisconnected += instance.OnServerDisconnected;
+            Multiplayer.ConnectedToServer += OnConnectedToServer;
+            Multiplayer.ConnectionFailed +=OnConnectionFailed;
+            Multiplayer.ServerDisconnected += OnServerDisconnected;
         }
         var peer = new ENetMultiplayerPeer();
         if (peer.CreateClient(ip, port) == Error.Ok)
@@ -22,12 +20,7 @@ public class ClientNetServe : NetServe
             Multiplayer.MultiplayerPeer = peer;
             GD.Print("正在初始化");
         }
-        return instance;
-
-    }
-    public override void EnterRoom()
-    {
-        throw new System.NotImplementedException();
+        connctTimes += 1;
     }
     private void OnConnectedToServer()
     {
@@ -38,11 +31,10 @@ public class ClientNetServe : NetServe
     private void OnConnectionFailed()
     {
         GD.Print("连接到服务器失败。");
-        // 可以在这里进行重连或其他错误处理
     }
     private void OnServerDisconnected()
     {
         GD.Print("与服务器断开连接。");
-        NetManager.Instance.GetTree().Quit();
+        SceneChangeManager.Instance.ChangeScene(StringResource.ConnectTscn);
     }
 }

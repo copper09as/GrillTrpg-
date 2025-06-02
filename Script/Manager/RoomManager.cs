@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
+public partial class RoomManager : Node, IStartGame, IUpdateRoomUi
 {
     public static RoomManager Instance { get; private set; }
     public Dictionary<int, Room> rooms;//服务端使用
-    public List<int> servePlayers = new List<int>();//服务端使用
-    public List<int> players = new List<int>();//本地使用
+    
+    //public List<int> players = new List<int>();//本地使用，本地同房间的玩家
     [Export] public ItemList roomList;//服务端使用
     [Export] public ItemList playerList;
     [Export] public LineEdit roomId;
@@ -32,8 +32,8 @@ public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
     }
     private void ExitRoomPress()
     {
-        NetManager.Instance.RpcId(1, "ExitRoom", GameManager.Instance.roomId, Multiplayer.GetUniqueId());
-        SceneChangeManager.Instance.ChangeScene(StringResource.MainGame);
+        NetManager.Instance.RpcId(1, "ExitRoom", Multiplayer.GetUniqueId());
+         
     }
     public override void _Process(double delta)
     {
@@ -55,15 +55,15 @@ public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
     }
     public void StartGame()
     {
-        
+
         if (IsInstanceValid(playerList))
             playerList.Hide();
-        if (IsInstanceValid( ExitRoomBtn))
+        if (IsInstanceValid(ExitRoomBtn))
             ExitRoomBtn.Hide();
     }
     public void UpdateRoomUi()
     {
-        var onlinePlayers = Multiplayer.IsServer() ? servePlayers : players;
+        var onlinePlayers = NetManager.Instance.netServe.players;
         playerList.Clear();
         if (roomList != null)
         {
@@ -113,12 +113,11 @@ public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
         };
         return room;
     }
-    public int LeaveRoom(int playerId)
+    public int LeaveRoom(int playerId, bool isQueue = true)
     {
         int roomId = -1;
         lock (rooms) // 确保线程安全
         {
-
             // 1. 遍历所有房间寻找该玩家
             List<int> roomsToRemove = new List<int>();
             foreach (var roomEntry in rooms)
@@ -140,7 +139,6 @@ public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
                     break;
                 }
             }
-
             // 4. 销毁所有空房间
             foreach (int i in roomsToRemove)
             {
@@ -148,6 +146,24 @@ public partial class RoomManager : Node,IStartGame,IUpdateRoomUi
                 GD.Print($"房间 {i} 已销毁");
             }
         }
+        NetManager.Instance.RpcId(playerId, "SyncLeaveRoom", playerId);//向这个退出房间的玩家发出退出请求
+        if (Instance.rooms.ContainsKey(roomId))//如果服务端房间存在
+        {
+            foreach (var existingId in Instance.rooms[roomId].players)
+            {
+                NetManager.Instance.RpcId(existingId, "SyncLeaveRoom", playerId);//向其他玩家发送这个id
+                NetManager.Instance.RpcId(playerId, "SyncLeaveRoom", existingId);
+            }
+            GD.Print("房间存在，向所有房间内玩家发送广播");
+        }
+        else
+        {
+            //NetManager.Instance.RpcId(playerId, "SyncLeaveRoom", playerId);
+            GD.Print("房间不存在，不发送广播");
+        }
+        var node = NetManager.Instance.GetNodeOrNull(playerId.ToString());
+        if (isQueue)
+            node.QueueFree();
         return roomId;
     }
     public class Room()

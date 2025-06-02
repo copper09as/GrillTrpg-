@@ -28,7 +28,7 @@ public partial class CharacterCardEdit : Node
         if (!CanCreatePlayer())
             return;
         var player = GetGrillPlayerData();
-        GameDataHandler.Save<GrillPlayerData>(player, StringResource.GetPlayerSavePath(pathEdit.Selected));
+        GameDataHandler.Save(player, StringResource.GetPlayerSavePath(pathEdit.Selected));
         GameDataCenter.Instance.UpdatePlayerList();
     }
     private GrillPlayerData GetGrillPlayerData()

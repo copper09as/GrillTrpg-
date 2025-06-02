@@ -20,13 +20,13 @@ public partial class GrillHost : Control
             SendBtn[i].Pressed += () => OnSendBtnPress(index);
         }
         letterDic = new Godot.Collections.Dictionary<int, RichTextLabel>();
-        if (RoomManager.Instance != null && RoomManager.Instance.players != null)
+        if (RoomManager.Instance != null && NetManager.Instance.netServe.players != null)
         {
-            int playerCount = Mathf.Min(RoomManager.Instance.players.Count - 1, players.Count);
+            int playerCount = Mathf.Min(NetManager.Instance.netServe.players.Count - 1, players.Count);
 
             for (int i = 0; i < playerCount; i++)
             {
-                int id = RoomManager.Instance.players[i + 1];
+                int id = NetManager.Instance.netServe.players[i + 1];
                 if (i < letters.Count)
                 {
                     letterDic[id] = letters[i];

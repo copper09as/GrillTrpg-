@@ -48,16 +48,8 @@ public partial class GrillGameManager : Control
         base._Ready();
         if (Instance == null)
             Instance = this;
-        grillOffer = GameDataCenter.Instance.currentOfferData;
-        if (GameDataCenter.Instance.currentPlayerData == null)
-        {
-            
-        }
-        else
-            grillPlayer = GameDataCenter.Instance.currentPlayerData;
         InitData();
         CreataWord();
-
     }
     public override void _ExitTree()
     {
@@ -67,6 +59,8 @@ public partial class GrillGameManager : Control
 
     private void InitData()
     {
+        grillPlayer = GameDataCenter.Instance.CurrentPlayerData;
+        grillOffer = GameDataCenter.Instance.CurrentOfferData;
         dice = CaculateTool.CaculateDice(1, 6);
         wordNodes = new List<GrillWord>();
         LanguageBtn.Pressed += OnLanguageBtnPress;
@@ -74,7 +68,7 @@ public partial class GrillGameManager : Control
         offerUiManager.UpdateUi(grillOffer);
         playerUiManager.UpdateUi(grillPlayer);
         LanguageTimes = (grillPlayer.Language + 1) * 5;
-        grillOffer = GameDataCenter.Instance.currentOfferData;
+        
     }
     private void CreataWord()
     {

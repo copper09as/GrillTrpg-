@@ -13,10 +13,7 @@ public partial class CharacterCardEdit : Node
     public override void _Ready()
     {
         base._Ready();
-        if (saveBtn != null)
-        {
-            saveBtn.Pressed += OnSaveBtnPress;
-        }
+        saveBtn.Pressed += OnSaveBtnPress;
         ExitBtn.Pressed += LeaveScene;
     }
     private void LeaveScene()

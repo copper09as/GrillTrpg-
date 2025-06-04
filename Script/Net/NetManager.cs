@@ -102,11 +102,11 @@ public partial class NetManager : Node
     /// </summary>
     /// <param name="peerId"></param>
     [Rpc(MultiplayerApi.RpcMode.Authority)]
-    private void SyncLeaveRoom(int peerId)//本地没有调用成功.现在可以调用成功
+    private void SyncLeaveRoom(int peerId)//用于目标id离开plays列表
     {
         try
         {
-            netServe.players.Remove(peerId);//本地移除自己
+            netServe.players.Remove(peerId);//本地移除对应id
             //GD.Print(netServe.players[1]);
         }
         catch (Exception e)
@@ -172,10 +172,7 @@ public partial class NetManager : Node
     [Rpc(MultiplayerApi.RpcMode.Authority)]
     public void SyncStartGame(int offer)
     {
-        GameDataCenter.Instance.currentOfferData = GameDataCenter.Instance.gameOfferData[offer];
+        GameDataCenter.Instance.CurrentOfferData = GameDataCenter.Instance.gameOfferData[offer];
         SignalEventCenter.Instance.TriggerEvent(StringResource.StartGame);
     }
-
-
-
 }

@@ -3,7 +3,7 @@ using System;
 
 public partial class GrillHost : Control
 {
-    public Godot.Collections.Dictionary<int, RichTextLabel> letterDic;
+    private Godot.Collections.Dictionary<int, RichTextLabel> letterDic;
     public static GrillHost Instance;
     [Export] private Godot.Collections.Array<OptionButton> ScoreOption;
     [Export] private Godot.Collections.Array<Label> players;
@@ -42,7 +42,7 @@ public partial class GrillHost : Control
             GD.Print("RoomManager not available or players list missing");
         }
 
-        offerUiManager.UpdateUi(GameDataCenter.Instance.currentOfferData);
+        offerUiManager.UpdateUi(GameDataCenter.Instance.CurrentOfferData);
     }
     private void OnSendBtnPress(int index)
     {

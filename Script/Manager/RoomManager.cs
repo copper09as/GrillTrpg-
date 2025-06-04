@@ -151,8 +151,8 @@ public partial class RoomManager : Node, IStartGame, IUpdateRoomUi
         {
             foreach (var existingId in Instance.rooms[roomId].players)
             {
-                NetManager.Instance.RpcId(existingId, "SyncLeaveRoom", playerId);//向其他玩家发送这个id
-                NetManager.Instance.RpcId(playerId, "SyncLeaveRoom", existingId);
+                NetManager.Instance.RpcId(existingId, "SyncLeaveRoom", playerId);//向其他玩家发送这个已经退出的玩家id
+                NetManager.Instance.RpcId(playerId, "SyncLeaveRoom", existingId);//向已经退出的玩家发出其他玩家id
             }
             GD.Print("房间存在，向所有房间内玩家发送广播");
         }

@@ -19,15 +19,13 @@ public partial class ChoseCharacter : Control
             this.Hide();
             return;
         }
-        GameDataCenter.Instance.currentPlayerData = GameDataCenter.Instance.gamePlayerData[0];
         this.Show();
         characterOption.ItemSelected += OnCharacterChange;
         foreach (var i in GameDataCenter.Instance.gamePlayerData)
             characterOption.AddItem(i.Name);
     }
-
     private void OnCharacterChange(long index)
     {
-        GameDataCenter.Instance.currentPlayerData = GameDataCenter.Instance.gamePlayerData[characterOption.Selected];
+        GameDataCenter.Instance.CurrentPlayerData = GameDataCenter.Instance.gamePlayerData[characterOption.Selected];
     }
 }

@@ -6,9 +6,41 @@ using System.IO;
 public partial class GameDataCenter : Node
 {
     public static GameDataCenter Instance;
-    [Export] public GrillOfferData currentOfferData;
+    [Export] private GrillOfferData currentOfferData;
+    public GrillOfferData CurrentOfferData
+    {
+        get
+        {
+            return currentOfferData;
+        }
+        set
+        {
+            currentOfferData = value;
+        }
+    }
     [Export] public Godot.Collections.Array<GrillOfferData> gameOfferData;
-    public GrillPlayerData currentPlayerData;
+    private GrillPlayerData currentPlayerData;
+    private GrillPlayerData nullPlayerData;
+    public GrillPlayerData CurrentPlayerData
+    {
+        get
+        {
+            if (currentPlayerData != null)
+                return currentPlayerData;
+            else if (gamePlayerData.Count > 0)
+            {
+                return gamePlayerData[0];
+            }
+            return nullPlayerData;
+
+        }
+        set
+        {
+            if(value != null)
+                currentPlayerData = value;
+        }
+
+    }
     public List<GrillPlayerData> gamePlayerData;
     public override void _Ready()
     {
@@ -21,6 +53,13 @@ public partial class GameDataCenter : Node
         {
             this.QueueFree();
         }
+        nullPlayerData = new GrillPlayerData
+        {
+            Name = "未命名",
+            Language = 0,
+            Penmanship = 1,
+            Heart = 2
+        };
         gamePlayerData = new List<GrillPlayerData>();
         UpdatePlayerList();
     }

@@ -98,7 +98,6 @@ public partial class GrillGameManager : Control
             return false;
         if (writeWord.InSelect(currentWord.GetWord(), currentWord.LvId))
         {
-
             if (currentWord.LvId == 1)
                 Score += 1;
             currentWord.Hide();

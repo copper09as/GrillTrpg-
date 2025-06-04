@@ -9,7 +9,7 @@ public partial class WriteBox : Control
     [Export] private Godot.Collections.Array<WriteWord> writeWords;
     [Export] private TextureButton FinishBtn;
     [Export] private TextureButton HeartBtn;
-    private static string[] letter = Enumerable.Repeat("", 5).ToArray();
+    private static string[] letter;
     public int id;
     private static int count;
     private string message = "";
@@ -22,19 +22,13 @@ public partial class WriteBox : Control
         base._Ready();
         FinishBtn.Pressed += OnFinishBtnPress;
         HeartBtn.Pressed += OnHeartBtnPress;
-        letter = Enumerable.Repeat("", 5).ToArray();
+        letter = [.. Enumerable.Repeat("", 5)];
         count = 0;
         for (int i = 2; i < writeWords.Count; i++)
         {
             writeWords[i].Hide();
         }
     }
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-
-    }
-
     private void OnFinishBtnPress()
     {
         if (IsButtonBlocked()) return;
@@ -74,7 +68,6 @@ public partial class WriteBox : Control
         }
         canRollHeart = false;
         HeartBtn.Hide();
-
     }
     private bool IsButtonBlocked() => !isFinish || isOver;
 

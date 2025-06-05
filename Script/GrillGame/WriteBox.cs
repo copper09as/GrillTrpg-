@@ -37,7 +37,7 @@ public partial class WriteBox : Control
             i.IsFillInk = true;
             message += i.wordEdit.Text + " ";
         }
-        GrillGameManager.Instance.RollPenmanship();
+        RollPenmanship();
         count += 1;
         GD.Print(message);
         letter[id] = message;
@@ -58,7 +58,7 @@ public partial class WriteBox : Control
         if (IsButtonBlocked()) return;
         if (!canRollHeart) return;
         GD.Print("开启华丽辞藻鉴定");
-        if (GrillGameManager.Instance.RollHeart())
+        if (RollHeart())
         {
             GrillGameManager.Instance.Score += lvId == 1 ? 1 : -1;
         }
@@ -68,6 +68,34 @@ public partial class WriteBox : Control
         }
         canRollHeart = false;
         HeartBtn.Hide();
+    }
+    private void RollPenmanship()
+    {
+        for (int j = 0; j < GameDataCenter.Instance.CurrentPlayerData.Penmanship + 1; j++)
+        {
+            int value = CaculateTool.Roll(CaculateTool.D16);
+            GD.Print("书法鉴定中");
+            if (value >= 5)
+            {
+                GD.Print("书法鉴定成功");
+                GrillGameManager.Instance.Score += 1;
+                break;
+            }
+        }
+    }
+    private bool RollHeart()
+    {
+        for (int j = 0; j < GameDataCenter.Instance.CurrentPlayerData.Heart + 1; j++)
+        {
+            int value = CaculateTool.Roll(CaculateTool.D16);
+            GD.Print("心灵鉴定中");
+            if (value >= 5)
+            {
+                GD.Print("心灵鉴定成功");
+                return true;
+            }
+        }
+        return false;
     }
     private bool IsButtonBlocked() => !isFinish || isOver;
 

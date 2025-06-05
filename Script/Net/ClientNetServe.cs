@@ -3,11 +3,11 @@ using Godot;
 
 public class ClientNetServe : NetServe
 {
-    private static int connctTimes = 0;
+    private static int connectTimes = 0;
 
     public ClientNetServe(MultiplayerApi Multiplayer, string ip, int port) : base(Multiplayer)
     {
-        if (connctTimes == 0)
+        if (connectTimes == 0)
         {
             Multiplayer.ConnectedToServer += OnConnectedToServer;
             Multiplayer.ConnectionFailed +=OnConnectionFailed;
@@ -20,7 +20,7 @@ public class ClientNetServe : NetServe
             Multiplayer.MultiplayerPeer = peer;
             GD.Print("正在初始化");
         }
-        connctTimes += 1;
+        connectTimes += 1;
     }
     private void OnConnectedToServer()
     {

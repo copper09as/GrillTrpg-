@@ -13,7 +13,7 @@ public partial class SceneChangeManager : Node
         }
         else
         {
-            this.QueueFree();
+            QueueFree();
         }
     }
     public void ChangeScene(string path)

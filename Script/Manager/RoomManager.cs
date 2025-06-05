@@ -33,11 +33,6 @@ public partial class RoomManager : Node, IStartGame, IUpdateRoomUi
     private void ExitRoomPress()
     {
         NetManager.Instance.RpcId(1, "ExitRoom", Multiplayer.GetUniqueId());
-         
-    }
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
     }
     private void OnEnterRoom()//向服务端发送申请加入房间
     {

@@ -20,8 +20,7 @@ public partial class StartGameBtn : TextureButton,IStartGame
             return;
         }
         SignalEventCenter.Instance.RegisterEvent(this, StringResource.StartGame,(uint)ConnectFlags.OneShot);
-        NetManager.Instance.StartGameLocal(GameManager.Instance.roomId, offerOption.Selected);
-        
+        NetManager.Instance.RpcId(1, MethodName.StartGame, GameManager.Instance.roomId, offerOption.Selected);
     }
     private void UpdateOffer()
     {

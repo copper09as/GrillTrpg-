@@ -23,9 +23,8 @@ public partial class SignalEventCenter : Node
             QueueFree();
         }
     }
-
     // 注册普通事件
-    public void RegisterEvent(Node ob, String signalName, uint flags = 0)
+    public void RegisterEvent(Node ob, string signalName, uint flags = 0)
     {
         var callable = new Callable(ob, signalName);
         if (!IsConnected(signalName, callable))
@@ -34,7 +33,7 @@ public partial class SignalEventCenter : Node
         }
     }
     // 取消注册事件
-    public void UnregisterEvent(Node ob, String signalName)
+    public void UnregisterEvent(Node ob, string signalName)
     {
         var callable = new Callable(ob, signalName);
         if (!IsConnected(signalName, callable))
@@ -47,8 +46,8 @@ public partial class SignalEventCenter : Node
     {
         EmitSignal(signalName);
     }
-    public void TriggerEvent(string signalName, int i)
+    public void TriggerEvent(string signalName, params Variant[] args)
     {
-        EmitSignal(signalName, i);
+        EmitSignal(signalName, args);
     }
 }

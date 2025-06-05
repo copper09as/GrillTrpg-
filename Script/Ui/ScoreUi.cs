@@ -16,7 +16,7 @@ public partial class ScoreUi : Node
     private void Restart()
     {
         NetManager.Instance.RpcId(1,"ExitRoom",Multiplayer.GetUniqueId());
-        SceneChangeManager.Instance.ChangeScene(StringResource.MainGame);
+        //SceneChangeManager.Instance.ChangeScene(StringResource.MainGame);
     }
     public void UpdateUi(string message)
     {

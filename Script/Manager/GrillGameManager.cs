@@ -42,7 +42,7 @@ public partial class GrillGameManager : Control
     public static GrillGameManager Instance;
     private GrillPlayerData grillPlayer;
     private List<GrillWord> wordNodes;
-    private Godot.Collections.Array<int> dice;
+    
     public override void _Ready()
     {
         base._Ready();
@@ -61,14 +61,12 @@ public partial class GrillGameManager : Control
     {
         grillPlayer = GameDataCenter.Instance.CurrentPlayerData;
         grillOffer = GameDataCenter.Instance.CurrentOfferData;
-        dice = CaculateTool.CaculateDice(1, 6);
         wordNodes = new List<GrillWord>();
         LanguageBtn.Pressed += OnLanguageBtnPress;
         Score = 0;
         offerUiManager.UpdateUi(grillOffer);
         playerUiManager.UpdateUi(grillPlayer);
         LanguageTimes = (grillPlayer.Language + 1) * 5;
-        
     }
     private void CreataWord()
     {
@@ -112,7 +110,7 @@ public partial class GrillGameManager : Control
     }
     private void OnLanguageBtnPress()
     {
-        int value = CaculateTool.Roll(dice);
+        int value = CaculateTool.Roll(CaculateTool.D16);
         if (LanguageTimes == 0)
         {
             return;
@@ -127,38 +125,8 @@ public partial class GrillGameManager : Control
             GD.Print(value);
         }
         LanguageTimes -= 1;
-
-
     }
-    public void RollPenmanship()
-    {
 
-        for (int j = 0; j < grillPlayer.Penmanship + 1; j++)
-        {
-            int value = CaculateTool.Roll(dice);
-            GD.Print("书法鉴定中");
-            if (value >= 5)
-            {
-                GD.Print("书法鉴定成功");
-                Score += 1;
-                break;
-            }
-        }
-    }
-    public bool RollHeart()
-    {
-        for (int j = 0; j < grillPlayer.Heart + 1; j++)
-        {
-            int value = CaculateTool.Roll(dice);
-            GD.Print("心灵鉴定中");
-            if (value >= 5)
-            {
-                GD.Print("心灵鉴定成功");
-                return true;
-            }
-        }
-        return false;
-    }
     public void ReceiveLetter(int score)
     {
         int sum = score + this.score;

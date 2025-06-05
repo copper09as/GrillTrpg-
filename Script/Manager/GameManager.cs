@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class GameManager : Node,IStartGame
+public partial class GameManager : Node, IStartGame
 {
     public static GameManager Instance { get; private set; }
     public int roomId;
@@ -27,19 +27,6 @@ public partial class GameManager : Node,IStartGame
             Instance = null;
         }
     }
-
-    public override void _Process(double delta)
-    {
-        if (Multiplayer.IsServer())
-            return;
-        if (player == null)
-            return;
-        if (int.Parse(Name) != Multiplayer.GetUniqueId())
-            return;
-        base._Process(delta);
-        var pos = player.MoveInput();
-    }
-
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
     private void ServeSendMsg(long senderPeerId, int roomId, string message)
     {
@@ -53,8 +40,6 @@ public partial class GameManager : Node,IStartGame
     {
         ChatManager.Instance.UpdateMessage(message);
     }
-
-
     public void SendLetter(string message)//本地发送信件
     {
         GD.Print("发送信件");
@@ -63,7 +48,7 @@ public partial class GameManager : Node,IStartGame
 
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
-    public void FinishLetter(int roomId, int peerId, string message)//服务端接受并且转发
+    public void FinishLetter(int roomId, int peerId, string message)//服务端接受并且转发信件
     {
         RpcId(RoomManager.Instance.rooms[roomId].hostId, MethodName.SyncUpdateLetter, peerId, message);
     }
@@ -74,19 +59,13 @@ public partial class GameManager : Node,IStartGame
     }
     public void EnterRoom()
     {
-        if (!IsHost)
-            ResManager.Instance.CreateInstance<ChoseCharacter>(StringResource.ChoseCharacterTsce, GetNode("/root/MainGame2"), "Chose");
-        else
-            ResManager.Instance.CreateInstance<StartGameBtn>(StringResource.StartGameBtnTscn, GetNode("/root/MainGame2"), "Start");
+        var GameType = IsHost ? "Start" : "Chose";
+        ResManager.Instance.CreateInstance<StartGameBtn>(StringResource.StartGameBtnTscn, GetNode("/root/MainGame2"), GameType);
     }
     public void StartGame()
     {
-        
-        if (IsHost)
-            ResManager.Instance.CreateInstance<Control>(StringResource.HostGameTscn, GetNode("/root/MainGame2"), "HostGame");
-        else
-            ResManager.Instance.CreateInstance<Control>(StringResource.TestGameTscn, GetNode("/root/MainGame2"), "GrillGame");
-
+        var GameType = IsHost ? "HostGame" : "GrillGame";
+        ResManager.Instance.CreateInstance<Control>(StringResource.TestGameTscn, GetNode("/root/MainGame2"), GameType);
     }
     public void FinishScore(int peerId, int score)
     {

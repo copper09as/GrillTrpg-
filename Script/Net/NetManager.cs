@@ -7,10 +7,8 @@ using System.Security.Cryptography.X509Certificates;
 public partial class NetManager : Node
 {
     public static NetManager Instance { get; private set; }
-    [Export] public LineEdit roomId;
-    //public List<int> servePlayers = new List<int>();//服务端使用，在线的所有玩家
+    [Export] private LineEdit roomId;
     public NetServe netServe;
-    //public Dictionary<int, List<int>> roomDic = new Dictionary<int, List<int>>();
     private NetManager() { }
     public override void _Ready()
     {
@@ -22,15 +20,6 @@ public partial class NetManager : Node
         else
         {
             this.QueueFree();
-        }
-    }
-    private void OnEnterRoom()//向服务端发送申请加入房间
-    {
-        if (!Multiplayer.IsServer())
-        {
-            int roomid = int.Parse(roomId.Text);
-            int peerId = Multiplayer.GetUniqueId();
-            RpcId(1, MethodName.EnterRoom, roomid, peerId);
         }
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
@@ -60,7 +49,6 @@ public partial class NetManager : Node
         }
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
     }
-
     /// <summary>
     /// 加入房间
     /// </summary>
@@ -87,8 +75,6 @@ public partial class NetManager : Node
             var playerGameManager = ResManager.Instance.CreateInstance<GameManager>(StringResource.GameManagerPath, this, peerId.ToString());
             playerGameManager.player = null;
         }
-        var node = this.GetNodeOrNull(peerId.ToString());
-
     }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
     private void ExitRoom(int peerId)
@@ -96,7 +82,6 @@ public partial class NetManager : Node
         RoomManager.Instance.LeaveRoom(peerId, false);
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
     }
-
     /// <summary>
     /// 玩家房间移除目标的玩家，并且删除目标玩家
     /// </summary>
@@ -107,13 +92,11 @@ public partial class NetManager : Node
         try
         {
             netServe.players.Remove(peerId);//本地移除对应id
-            //GD.Print(netServe.players[1]);
         }
         catch (Exception e)
         {
-            GD.Print(e.ToString());
+            GD.Print("本地移除id失败"+e.ToString());
         }
-        
         if (peerId == Multiplayer.GetUniqueId())
         {
             SceneChangeManager.Instance.ChangeScene(StringResource.MainGame);
@@ -121,9 +104,9 @@ public partial class NetManager : Node
         }
         else
         {
-            var node = this.GetNodeOrNull(peerId.ToString());
+            var node = GetNodeOrNull(peerId.ToString());
             if(node != null)
-            node.QueueFree();
+                node.QueueFree();
             GD.Print("转接器已删除");
         }
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
@@ -132,7 +115,7 @@ public partial class NetManager : Node
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
     public void LoadGameManager(int id)
     {
-        ResManager.Instance.CreateInstance<GameManager>(StringResource.GameManagerPath, NetManager.Instance, id.ToString());
+        ResManager.Instance.CreateInstance<GameManager>(StringResource.GameManagerPath, Instance, id.ToString());
         RpcId(id, MethodName.SyncGameManager, id);
         GD.Print("转接器已生成");
         SignalEventCenter.Instance.TriggerEvent(StringResource.UpdateRoomUi);
@@ -150,10 +133,6 @@ public partial class NetManager : Node
         GameManager.Instance.IsHost = isHost;
         GameManager.Instance.EnterRoom();
     }
-    public void StartGameLocal(int roomId, int offer)
-    {
-        Instance.RpcId(1, MethodName.StartGame, GameManager.Instance.roomId, offer);
-    }
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
     public void StartGame(int roomId, int offer)
     {
@@ -167,7 +146,6 @@ public partial class NetManager : Node
         {
             RpcId(existingId, MethodName.SyncStartGame, offer);
         }
-
     }
     [Rpc(MultiplayerApi.RpcMode.Authority)]
     public void SyncStartGame(int offer)
